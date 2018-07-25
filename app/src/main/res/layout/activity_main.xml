@@ -32,12 +32,13 @@
             android:src="@drawable/img_toolbar_logo"/>
 
         <include
-            android:id="@+id/menuOptionItem"
+            android:id="@+id/inboxMenuItem"
             layout="@layout/menu_item_view"
             android:layout_width="?attr/actionBarSize"
             android:layout_height="?attr/actionBarSize"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"/>
+
 
     </RelativeLayout>
 

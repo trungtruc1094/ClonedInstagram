@@ -1,5 +1,7 @@
 package com.example.trung.clonedinstagram;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.ClipData;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,14 +11,30 @@ import android.view.Menu;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.OvershootInterpolator;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
-    @BindView(R.id.toolbar) RelativeLayout toolbar;
-    @BindView(R.id.rvFeed) RecyclerView rvFeed;
+    @BindView(R.id.toolbar)
+    RelativeLayout toolbar;
+    @BindView(R.id.rvFeed)
+    RecyclerView rvFeed;
+    @BindView(R.id.btnCreate)
+    ImageButton btnCreate;
+    @BindView(R.id.ivLogo)
+    ImageView ivLogo;
+    @BindView(R.id.inboxMenuItem)
+    ImageButton inboxMenuItem;
+
+    boolean pendingIntroAnimation = false;
+    private static final int ANIM_DURATION_TOOLBAR = 300;
+    private static final int ANIM_DURATION_FAB = 400;
 //    RecyclerView rvFeed;
 
 
@@ -36,13 +54,20 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         rvFeed = (RecyclerView) findViewById(R.id.rvFeed);
 
-//        setupToolbar();
+        if (savedInstanceState == null) {
+            pendingIntroAnimation = true;
+        }
+
+        setupIntialAnimation();
         setupFeed();
     }
 
-    /*private void setupToolbar() {
-        setSupportActionBar(toolbar);
-    }*/
+    private void setupIntialAnimation() {
+        if (pendingIntroAnimation) {
+            pendingIntroAnimation = false;
+            startInitialAnimation();
+        }
+    }
 
     private void setupFeed() {
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -51,5 +76,54 @@ public class MainActivity extends AppCompatActivity {
 
         feedAdapter = new FeedAdapter(this);
         rvFeed.setAdapter(feedAdapter);
+    }
+
+    // Start initial Animation
+    public void startInitialAnimation(){
+        // Set all views being out of screen
+        btnCreate.setTranslationY(2 * getResources().getDimensionPixelOffset(R.dimen.btn_fab_size));
+
+        int actionbarSize = Utils.dpToPx(56);
+        toolbar.setTranslationY(-actionbarSize);
+        ivLogo.setTranslationY(-actionbarSize);
+        inboxMenuItem.setTranslationY(-actionbarSize);
+
+        // Start animation
+        toolbar.animate()
+                .translationY(0)
+                .setDuration(ANIM_DURATION_TOOLBAR)
+                .setStartDelay(300);
+        ivLogo.animate()
+                .translationY(0)
+                .setDuration(ANIM_DURATION_TOOLBAR)
+                .setStartDelay(400);
+        inboxMenuItem.animate()
+                .translationY(0)
+                .setDuration(ANIM_DURATION_TOOLBAR)
+                .setStartDelay(500)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        startContentAnimation();
+                    }
+                })
+                /*.setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        startContentAnimation();
+                    }
+                })*/
+                .start();
+    }
+
+    // Start content animation
+    public void startContentAnimation(){
+        btnCreate.animate()
+                .translationY(0)
+                .setInterpolator(new OvershootInterpolator(1.f))
+                .setStartDelay(300)
+                .setDuration(ANIM_DURATION_FAB)
+                .start();
+        feedAdapter.updateItems();
     }
 }

@@ -13,15 +13,19 @@ import com.example.trung.clonedinstagram.Utils;
 
 import com.facebook.rebound.ui.Util;
 
+import java.net.Inet4Address;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener{
     private static final int ANIMATED_ITEMS_COUNT = 2;
 
     private Context context;
     private int lastAnimatedPosition = -1;
     private int itemsCount = 10;
+
+    private OnFeedItemClickListener onFeedItemClickListener;
 
     public FeedAdapter(Context context){
         this.context = context;
@@ -45,12 +49,16 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             holder.ivFeedCenter.setImageResource(R.drawable.img_feed_center_2);
             holder.ivFeedBottom.setImageResource(R.drawable.img_feed_bottom_2);
         }
+        holder.ivFeedBottom.setOnClickListener(this);
+        holder.ivFeedBottom.setTag(position);
     }
 
     @Override
     public int getItemCount() {
         return itemsCount;
     }
+
+
 
     // Enter Animation
     public void runEnterAnimation(View view, int position){
@@ -63,6 +71,21 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             view.setTranslationY(Utils.getScreenHeight(context));
             view.animate().translationY(0).setInterpolator(new DecelerateInterpolator(3.f)).setDuration(700).start();
         }
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.ivFeedBottom){
+            // Check if onFeedItemClickListener has value
+            if (onFeedItemClickListener != null){
+                onFeedItemClickListener.onCommentsClick(view, (Integer) view.getTag());
+            }
+        }
+    }
+
+    // Khoi tao interface
+    public void setOnFeedItemClickListener(OnFeedItemClickListener onFeedItemClickListener){
+        this.onFeedItemClickListener = onFeedItemClickListener;
     }
 
 
@@ -79,5 +102,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     public void updateItems() {
         itemsCount = 10;
         notifyDataSetChanged();
+    }
+
+    // Create interface
+    public interface OnFeedItemClickListener{
+        public void onCommentsClick(View view, int position);
     }
 }

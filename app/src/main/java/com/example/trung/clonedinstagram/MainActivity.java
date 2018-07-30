@@ -3,6 +3,7 @@ package com.example.trung.clonedinstagram;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.ClipData;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,7 +21,7 @@ import android.widget.RelativeLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FeedAdapter.OnFeedItemClickListener {
     @BindView(R.id.toolbar)
     RelativeLayout toolbar;
     @BindView(R.id.rvFeed)
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     boolean pendingIntroAnimation = false;
     private static final int ANIM_DURATION_TOOLBAR = 300;
     private static final int ANIM_DURATION_FAB = 400;
+
 //    RecyclerView rvFeed;
 
 
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        rvFeed = (RecyclerView) findViewById(R.id.rvFeed);
+//        rvFeed = (RecyclerView) findViewById(R.id.rvFeed);
 
         if (savedInstanceState == null) {
             pendingIntroAnimation = true;
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         rvFeed.setLayoutManager(linearLayoutManager);
 
         feedAdapter = new FeedAdapter(this);
+        feedAdapter.setOnFeedItemClickListener(this);
         rvFeed.setAdapter(feedAdapter);
     }
 
@@ -125,5 +128,19 @@ public class MainActivity extends AppCompatActivity {
                 .setDuration(ANIM_DURATION_FAB)
                 .start();
         feedAdapter.updateItems();
+    }
+
+    @Override
+    public void onCommentsClick(View view, int position) {
+        final Intent intent = new Intent(this, CommentsActivity.class);
+
+        //Get location on screen for tapped view
+        int[] startingLocation = new int[2];
+        view.getLocationOnScreen(startingLocation);
+        intent.putExtra(CommentsActivity.ARG_DRAWING_START_LOCATION, startingLocation[1]);
+
+        startActivity(intent);
+        // Disable enter transition for new activity
+        overridePendingTransition(0, 0);
     }
 }

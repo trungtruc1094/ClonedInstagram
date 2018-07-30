@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ClonedInstagram</string>
+    <string name="title_activity_comments">CommentsActivity</string>
 </resources>
